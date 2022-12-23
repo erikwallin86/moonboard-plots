@@ -1,0 +1,3 @@
+[submodule "MoonBoard"]
+	path = MoonBoard
+	url = https://github.com/spookykat/MoonBoard
