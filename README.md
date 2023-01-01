@@ -17,10 +17,13 @@ Move into MoonBoard folder,
 cd MoonBoard
 ```
 
-For the moment, add pull request to enable 2016 holds
+For the moment, add pull request to enable 2016 holds and fetching of the logbook
 ```
 git fetch origin pull/2/head:other_holdsets
-git co other_holdsets
+git fetch origin pull/3/head:fetch_logbook
+
+git co fetch_logbook 
+git rebase other_holdsets 
 ```
 
 Edit secret.py with username and password

@@ -32,6 +32,20 @@ class Problem():
         return f'{self.__class__.__name__}({message})'
 
 
+class LogbookEntry():
+    def __init__(self, problem, **kwargs):
+        # Assign kwargs directly to __dict__
+        self.__dict__ = kwargs
+
+        # Retrieve apiId from 'problem'
+        self.apiId = problem['apiId']
+
+    def __repr__(self):
+        message = f"apiId='{self.apiId}',grade='{self.grade}',entryDate={self.entryDate}"
+
+        return f'{self.__class__.__name__}({message})'
+
+
 class StoreDict(argparse.Action):
     """
     Custom argparse action for storing dict.
