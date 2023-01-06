@@ -50,7 +50,7 @@ if save_dir and not os.path.exists(save_dir):
 # Load logbook
 with open(args.logbook) as json_file:
     logbook_data = json.load(json_file)
-print(f"len(logbook_data):{len(logbook_data)}")
+# print(f"len(logbook_data):{len(logbook_data)}")
 
 # Prepare logbook_dict
 logbook_dict = {}
@@ -58,17 +58,17 @@ for log in logbook_data:
     logbook_entry = LogbookEntry(**log)
     logbook_dict[logbook_entry.apiId] = logbook_entry
 
-last_log = None
-for log in logbook_data:
-    # print(f"log:{log}")
-    if last_log is not None:
-        for k, v in log.items():
-            if v != last_log[k]:
-                print(f"(k, v):{(k, v)}")
-    last_log = log
-
-    api_id = log['problem']['apiId']
-    # print(f"api_id:{api_id}")
+# last_log = None
+# for log in logbook_data:
+#     # print(f"log:{log}")
+#     if last_log is not None:
+#         for k, v in log.items():
+#             if v != last_log[k]:
+#                 # print(f"(k, v):{(k, v)}")
+#     last_log = log
+#
+#     api_id = log['problem']['apiId']
+#     # print(f"api_id:{api_id}")
 
 
 # Extract general settings (not given by dicts)
