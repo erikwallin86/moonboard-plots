@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 import numpy as np
+import colorcet as cc
+import matplotlib
 
 
 def new_fig(nrows=1, ncols=1, **kwargs):
@@ -21,6 +23,19 @@ def new_fig(nrows=1, ncols=1, **kwargs):
         axs = [fig.add_subplot(nrows, ncols, index) for index in
                range(1, nrows*ncols+1)]
         return fig, axs
+
+
+def add_grade_legend(ax, list_of_grades, cmap=cc.cm.rainbow):
+    # Construct custom legend
+    import matplotlib.lines as mlines
+    handles = []
+    for i, g in enumerate(list_of_grades):
+        color = cmap(i/(len(list_of_grades)-1))
+        marker = mlines.Line2D(
+            [], [], marker='o', linestyle='None', label=g, color=color,
+            markeredgewidth=0.5, markeredgecolor='k')
+        handles.append(marker)
+    ax.legend(handles=handles, loc='right', bbox_to_anchor=(1.2, 0.5))
 
 
 number_to_letter_dict = {
@@ -86,18 +101,68 @@ def plot_problem(list_of_moves):
     return fig, ax
 
 
-def plot_frequency(holds_sum_dict):
-    fig, ax = plt.subplots(figsize=(8.82, 13.56))
+def plot_frequency(holds_sum_dict, image_file="gpx/MoonBoard 2016 .png",
+                   color='red'):
+    fig, ax = new_fig(figsize=(8.82, 13.56))
     ax.set_aspect('equal')
-    img = plt.imread("gpx/empty_moonboard_2016.png")
+    img = plt.imread(image_file)
     ax.imshow(img, extent=(-1.9, 10+1.14, -1.28, 17+1.77))
     maximum = np.max(list(holds_sum_dict.values()))
     scale = 4e+3/maximum
     for description, value in holds_sum_dict.items():
         coords = desc_to_coords(description)
         if coords is not None:
-            ax.scatter(coords[0], coords[1], s=scale*value, alpha=0.5, c='red')
+            ax.scatter(
+                coords[0], coords[1], s=scale*value, alpha=0.5,
+                color=color, edgecolors='black', linewidth=2)
+
     fig.tight_layout()
     plt.axis('off')
     fig.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.0)
+    return fig, ax
+
+
+def progression_plot(dates, num_problems, colors=None, suptitle=None):
+    '''
+    Benchmark progression plot: scatter of dates v num_problems
+    '''
+    # Create figure and axis
+    fig, ax = new_fig()
+
+    # Setup grid
+    ax.set_axisbelow(True)
+    ax.grid(which='minor', linewidth=0.5)
+    ax.grid(which='major', linewidth=1.5)
+
+    # Plot scatter plot
+    ax.scatter(dates, num_problems, color=colors, edgecolors='k',
+               linewidth=0.5)
+
+    # Setup axis labels, tics etc.
+    ax.set_xlabel('Date')
+    ax.set_ylabel('Benchmark problems')
+    ax.set_ylim(bottom=0)
+    ax.xaxis.set_major_locator(matplotlib.dates.YearLocator())
+    ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%Y'))
+    ax.xaxis.set_minor_locator(matplotlib.dates.MonthLocator())
+    if suptitle:
+        fig.suptitle(suptitle)
+
+    return fig, ax
+
+
+def get_data_plot():
+    # Create figure and axis
+    fig, ax = new_fig()
+
+    # Setup grid
+    ax.set_axisbelow(True)
+    ax.grid(which='minor', linewidth=0.5)
+    ax.grid(which='major', linewidth=1.5)
+
+    # Setup axis labels, tics etc.
+    ax.xaxis.set_major_locator(matplotlib.dates.YearLocator())
+    ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%Y'))
+    ax.xaxis.set_minor_locator(matplotlib.dates.MonthLocator())
+
     return fig, ax

@@ -1,3 +1,5 @@
 *.pyc
 Output
+benchmark_problems/
 *.png
+*.json
