@@ -529,6 +529,84 @@ class Session(DataHandler):
         fig.savefig(filename, dpi=dpi, bbox_inches="tight")
 
 
+class Histograms(DataHandler):
+    '''
+    Histograms
+    '''
+    def __call__(self,
+                 problem_list,
+                 list_of_bm_grades,
+                 logbook_dict,
+                 overwrite=False,
+                 cmap=cc.cm.rainbow,
+                 dpi=200,
+                 **kwargs):
+        # Update save_dir with 'class name' subfolder:
+        class_name = self.__class__.__name__
+        self.save_dir = os.path.join(self.save_dir, class_name)
+        if not os.path.isdir(self.save_dir):
+            os.makedirs(self.save_dir)
+
+        # Make 'problem_dict' with id as key
+        problem_dict = {}
+        for problem in problem_list:
+            problem_dict[problem.apiId] = problem
+
+        # Extract 2016 problems from logbook
+        # (indirectly, as problem_dict only contains 2016 problems for me)
+        logbook_2016 = {
+            k: v for k, v in logbook_dict.items() if k in problem_dict}
+        # Sort logbook by entry-date
+        logbook_2016 = dict(sorted(
+            logbook_2016.items(),
+            key=lambda item: item[1].entryDate))
+
+        hours = []
+        weekdays = []
+        months = []
+
+        # Loop all logbook_2016 entries
+        for i, (api_id, entry) in enumerate(logbook_2016.items()):
+            # Remove fractions of seconds from entry date
+            cut_date = entry.entryDate.split('.')[0]
+            date = datetime.strptime(cut_date, "%Y-%m-%dT%H:%M:%S")
+
+            hours.append(date.hour)
+            weekdays.append(date.weekday())
+            months.append(date.month)
+
+        from plots.plot import new_fig
+        plots = {
+            'weekdays': (range(0, 8), weekdays),
+            'months': (range(1, 14), months),
+            'hours': (range(0, 25), hours)
+            }
+
+        for name, (bins, lst) in plots.items():
+            filename = f'{name}.png'
+            filename = os.path.join(self.save_dir, filename)
+            if os.path.exists(filename) and not overwrite:
+                # Skip if file already exists
+                continue
+
+            hist, bin_edges = np.histogram(lst, bins=bins)
+            fig, ax = new_fig()
+            bar = ax.bar(bin_edges[:-1], hist, width=(bins[1]-bins[0])*0.8)
+            fig.savefig(filename, dpi=dpi, bbox_inches="tight")
+
+        # bins = range(0, 8)
+        # hist, bin_edges = np.histogram(weekdays, bins=bins)
+        # bins = range(1, 14)
+        # hist, bin_edges = np.histogram(months, bins=bins)
+        # bins = range(0, 25)
+        # hist, bin_edges = np.histogram(hours, bins=bins)
+        # 
+        # fig, ax = new_fig()
+        # bar = ax.bar(bin_edges[:-1], hist, width=(bins[1]-bins[0])*0.8)
+        # 
+        # fig.savefig(filename, dpi=dpi, bbox_inches="tight")
+
+
 class RepeatsHistogram(DataHandler):
     '''
     Produce histogram showing how many repeats problems typically have
