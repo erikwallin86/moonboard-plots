@@ -4,3 +4,7 @@ def frame(string):
 
 def image(string):
     return f"<img src='data:image/png;base64,{string}'/>"
+
+
+def h2(string):
+    return f"<h2>{string}</h2>"
