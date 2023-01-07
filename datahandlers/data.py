@@ -180,7 +180,11 @@ class HoldFrequency(DataHandler):
 
 class Logbook(DataHandler):
     '''
-    Test with logbook
+    Benchmark progression showing time and grade.
+
+    Plot of the 'benchmark progression', i.e. a scatter plot of time v.
+    number of benchmarks. This will show the general trend, good and bad
+    spells e.g.
     '''
     def __call__(self,
                  problem_list,
