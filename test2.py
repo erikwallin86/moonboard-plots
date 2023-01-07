@@ -60,6 +60,7 @@ def data():
         datahandlers = ['Logbook', 'Times']
         settings = {}
         general_kwargs = {'save': False}
+        from utils.html import parse_docstring
 
         html = ""
         for datahandler in datahandlers:
@@ -72,10 +73,13 @@ def data():
             fig, ax = datahandler_obj(
                 **{**data_dict, **general_kwargs, **kwargs})
             output = io.BytesIO()
-            fig.savefig(output, format='png')
+            fig.savefig(output, format='png', bbox_inches="tight")
             data = base64.b64encode(output.getbuffer()).decode("ascii")
 
+            docstr = parse_docstring(datahandler_obj)
+
             html += h2(datahandler)
+            html += docstr
             html += frame(image(data))
 
         return html
