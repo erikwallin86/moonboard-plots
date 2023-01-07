@@ -43,7 +43,16 @@ def data():
             with open(filename) as json_file:
                 logbook_data = json.load(json_file)
 
-        print(f"logbook_data:{logbook_data}")
+        from run import construct_data
+        # Load json data
+        problems_2016_filename = 'MoonBoard/problems MoonBoard 2016 .json'
+        with open(problems_2016_filename) as json_file:
+            problem_data = json.load(json_file)
+
+        data_dict = construct_data(problem_data, logbook_data)
+
+        for k in data_dict.keys():
+            print(f"k:{k}")
 
         return render_template('data.html', form_data=form_data)
 
