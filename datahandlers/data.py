@@ -279,6 +279,7 @@ class Times(DataHandler):
                  overwrite=False,
                  cmap=cc.cm.rainbow,
                  dpi=200,
+                 save=True,
                  **kwargs):
         # Update save_dir with 'class name' subfolder:
         class_name = self.__class__.__name__
@@ -382,7 +383,10 @@ class Times(DataHandler):
         ylabels = [f'{t:05.2f}'.replace('.', ':') for t in ax.get_yticks()]
         ax.set_yticklabels(ylabels)
 
-        fig.savefig(filename, dpi=dpi, bbox_inches="tight")
+        if save:
+            fig.savefig(filename, dpi=dpi, bbox_inches="tight")
+        else:
+            return fig, ax
 
 
 class Session(DataHandler):

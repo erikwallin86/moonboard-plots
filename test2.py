@@ -55,18 +55,38 @@ def data():
             print(f"k:{k}")
 
         from datahandlers.data import Logbook
-        datahandler = Logbook()
-        fig, ax = datahandler(**data_dict, save=False)
+        from datahandlers.data import DATAHANDLERS
+
+        datahandlers = ['Logbook', 'Times']
+        settings = {}
+        general_kwargs = {'save': False}
+
+        import base64
         import io
         from flask import Response
         from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
-        output = io.BytesIO()
-        FigureCanvas(fig).print_png(output)
+        html = ""
+        for datahandler in datahandlers:
+            print(f"datahandler:{datahandler}")
+            datahandler_class = DATAHANDLERS[datahandler]
+            datahandler_obj = datahandler_class()
 
-        import base64
-        data = base64.b64encode(output.getbuffer()).decode("ascii")
-        return f"<img src='data:image/png;base64,{data}'/>"
+            # Extract possible settings kwargs from args.settings
+            kwargs = settings[datahandler] if datahandler in settings else {}
+            # Run datahandler object, with different inputs, and settings dict
+            for k, v in data_dict.items():
+                print(f"k:{k}")
+
+            # fig, ax = datahandler_obj(**data_dict, save=False)
+            fig, ax = datahandler_obj(**data_dict, save=False)
+            print(f"fig, ax:{fig, ax}")
+            output = io.BytesIO()
+            FigureCanvas(fig).print_png(output)
+            data = base64.b64encode(output.getbuffer()).decode("ascii")
+            html += f"<img src='data:image/png;base64,{data}'/>"
+
+        return html
 
         # return Response(output.getvalue(), mimetype='image/png')
         # return render_template('data.html', form_data=form_data)
