@@ -54,7 +54,17 @@ def data():
         for k in data_dict.keys():
             print(f"k:{k}")
 
-        return render_template('data.html', form_data=form_data)
+        from datahandlers.data import Logbook
+        datahandler = Logbook()
+        fig, ax = datahandler(**data_dict, save=False)
+        import io
+        from flask import Response
+        from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+
+        output = io.BytesIO()
+        FigureCanvas(fig).print_png(output)
+        return Response(output.getvalue(), mimetype='image/png')
+        # return render_template('data.html', form_data=form_data)
 
 
 app.run(host='localhost', port=5000)
