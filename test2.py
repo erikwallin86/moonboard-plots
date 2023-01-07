@@ -65,6 +65,7 @@ def data():
         import io
         from flask import Response
         from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+        from utils.html import frame, image
 
         html = ""
         for datahandler in datahandlers:
@@ -84,7 +85,8 @@ def data():
             output = io.BytesIO()
             FigureCanvas(fig).print_png(output)
             data = base64.b64encode(output.getbuffer()).decode("ascii")
-            html += f"<img src='data:image/png;base64,{data}'/>"
+            # html += f"<img src='data:image/png;base64,{data}'/>"
+            html += frame(image(data))
 
         return html
 
