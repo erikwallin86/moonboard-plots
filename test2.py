@@ -1,7 +1,14 @@
-from flask import Flask, render_template, request
 import sys
 import os
 import json
+import base64
+import io
+
+from flask import Flask, render_template, request
+from run import construct_data
+from datahandlers.data import DATAHANDLERS
+from utils.html import frame, image, h2
+
 
 app = Flask(__name__)
 
@@ -43,7 +50,6 @@ def data():
             with open(filename) as json_file:
                 logbook_data = json.load(json_file)
 
-        from run import construct_data
         # Load json data
         problems_2016_filename = 'MoonBoard/problems MoonBoard 2016 .json'
         with open(problems_2016_filename) as json_file:
@@ -51,40 +57,24 @@ def data():
 
         data_dict = construct_data(problem_data, logbook_data)
 
-        for k in data_dict.keys():
-            print(f"k:{k}")
-
-        from datahandlers.data import Logbook
-        from datahandlers.data import DATAHANDLERS
-
         datahandlers = ['Logbook', 'Times']
         settings = {}
         general_kwargs = {'save': False}
 
-        import base64
-        import io
-        from flask import Response
-        from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-        from utils.html import frame, image, h2
-
         html = ""
         for datahandler in datahandlers:
-            print(f"datahandler:{datahandler}")
             datahandler_class = DATAHANDLERS[datahandler]
             datahandler_obj = datahandler_class()
 
             # Extract possible settings kwargs from args.settings
             kwargs = settings[datahandler] if datahandler in settings else {}
             # Run datahandler object, with different inputs, and settings dict
-            for k, v in data_dict.items():
-                print(f"k:{k}")
-
-            # fig, ax = datahandler_obj(**data_dict, save=False)
-            fig, ax = datahandler_obj(**data_dict, save=False)
-            print(f"fig, ax:{fig, ax}")
+            fig, ax = datahandler_obj(
+                **{**data_dict, **general_kwargs, **kwargs})
             output = io.BytesIO()
-            FigureCanvas(fig).print_png(output)
+            fig.savefig(output, format='png')
             data = base64.b64encode(output.getbuffer()).decode("ascii")
+
             html += h2(datahandler)
             html += frame(image(data))
 
