@@ -23,6 +23,19 @@ def new_fig(nrows=1, ncols=1, **kwargs):
         return fig, axs
 
 
+def add_grade_legend(ax, list_of_grades, cmap):
+    # Construct custom legend
+    import matplotlib.lines as mlines
+    handles = []
+    for i, g in enumerate(list_of_grades):
+        color = cmap(i/(len(list_of_grades)-1))
+        marker = mlines.Line2D(
+            [], [], marker='o', linestyle='None', label=g, color=color,
+            markeredgewidth=0.5, markeredgecolor='k')
+        handles.append(marker)
+    ax.legend(handles=handles, loc='right', bbox_to_anchor=(1.2, 0.5))
+
+
 number_to_letter_dict = {
     0: 'A',
     1: 'B',

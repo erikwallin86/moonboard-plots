@@ -11,7 +11,7 @@ class DataHandler():
     '''
     Base class for datahandler
     '''
-    def __init__(self, save_dir):
+    def __init__(self, save_dir="./"):
         self.save_dir = save_dir
 
     def __call__(self, logger=None, **kwargs):
@@ -189,12 +189,10 @@ class Logbook(DataHandler):
                  overwrite=False,
                  cmap=cc.cm.rainbow,
                  dpi=200,
+                 save=True,
                  **kwargs):
         # Update save_dir with 'class name' subfolder:
         class_name = self.__class__.__name__
-        # self.save_dir = os.path.join(self.save_dir, class_name)
-        # if not os.path.isdir(self.save_dir):
-        #     os.makedirs(self.save_dir)
 
         filename = f"{class_name}.png"
         filename = os.path.join(self.save_dir, filename)
@@ -251,16 +249,8 @@ class Logbook(DataHandler):
         ax.scatter(dates, num_problems, color=colors, edgecolors='k',
                    linewidth=0.5)
 
-        # Construct custom legend
-        import matplotlib.lines as mlines
-        handles = []
-        for i, g in enumerate(list_of_bm_grades):
-            color = cmap(i/(len(list_of_bm_grades)-1))
-            marker = mlines.Line2D(
-                [], [], marker='o', linestyle='None', label=g, color=color,
-                markeredgewidth=0.5, markeredgecolor='k')
-            handles.append(marker)
-        ax.legend(handles=handles, loc='right', bbox_to_anchor=(1.2, 0.5))
+        from plots.plot import add_grade_legend
+        add_grade_legend(ax, list_of_bm_grades, cmap)
 
         # Setup axis labels, tics etc.
         ax.set_xlabel('Date')
@@ -272,7 +262,10 @@ class Logbook(DataHandler):
         ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%Y'))
         ax.xaxis.set_minor_locator(matplotlib.dates.MonthLocator())
 
-        fig.savefig(filename, dpi=dpi, bbox_inches="tight")
+        if save:
+            fig.savefig(filename, dpi=dpi, bbox_inches="tight")
+        else:
+            return fig, ax
 
 
 class Times(DataHandler):
