@@ -63,7 +63,12 @@ def data():
 
         output = io.BytesIO()
         FigureCanvas(fig).print_png(output)
-        return Response(output.getvalue(), mimetype='image/png')
+
+        import base64
+        data = base64.b64encode(output.getbuffer()).decode("ascii")
+        return f"<img src='data:image/png;base64,{data}'/>"
+
+        # return Response(output.getvalue(), mimetype='image/png')
         # return render_template('data.html', form_data=form_data)
 
 
