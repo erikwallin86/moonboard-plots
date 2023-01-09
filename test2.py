@@ -37,17 +37,12 @@ def data():
         # Download logbook, or fetch cached
         print(f"filename:{filename}")
         print(f"os.path.isfile(filename):{os.path.isfile(filename)}")
-        if not os.path.isfile(filename):
-            # Download data and save
-            logbook_data = request_data(access_kwargs={
-                'username': username,
-                'password': password})
-            with open(filename, 'w') as json_file:
-                json.dump(logbook_data, json_file, indent=4)
-        else:
-            # Load cached data
-            with open(filename) as json_file:
-                logbook_data = json.load(json_file)
+        # Download data and save
+        logbook_data = request_data(access_kwargs={
+            'username': username,
+            'password': password})
+        with open(filename, 'w') as json_file:
+            json.dump(logbook_data, json_file, indent=4)
 
         # Load json data
         problems_2016_filename = 'MoonBoard/problems MoonBoard 2016 .json'
