@@ -24,9 +24,6 @@ def data():
         return f"The URL /data is accessed directly. Try going to '/form' to submit form"
     if request.method == 'POST':
         form_data = request.form
-        print(f"form_data:{form_data}")
-        for k, v in form_data.items():
-            print(f"(k, v):{(k, v)}")
 
         sys.path.append("MoonBoard")
         from MoonBoard.fetch_logbook import request_data
@@ -38,6 +35,8 @@ def data():
         filename = f"logbook_{username}.json"
 
         # Download logbook, or fetch cached
+        print(f"filename:{filename}")
+        print(f"os.path.isfile(filename):{os.path.isfile(filename)}")
         if not os.path.isfile(filename):
             # Download data and save
             logbook_data = request_data(access_kwargs={
