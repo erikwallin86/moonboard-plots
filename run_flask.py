@@ -50,7 +50,7 @@ def data():
         except KeyError:
             from utils.html import get_wrong_password_string
             html = h2(get_wrong_password_string())
-            html += "Your probably entered the wrong password"
+            html += "Your probably entered the wrong username or password"
 
             return html
 
