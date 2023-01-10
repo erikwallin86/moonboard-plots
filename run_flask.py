@@ -18,6 +18,11 @@ def form():
     return render_template('form.html')
 
 
+@app.route('/example')
+def example():
+    return render_template('example.html')
+
+
 @app.route('/data/', methods=['POST', 'GET'])
 def data():
     if request.method == 'GET':
