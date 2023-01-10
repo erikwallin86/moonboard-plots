@@ -38,9 +38,17 @@ def data():
         print(f"filename:{filename}")
         print(f"os.path.isfile(filename):{os.path.isfile(filename)}")
         # Download data and save
-        logbook_data = request_data(access_kwargs={
-            'username': username,
-            'password': password})
+        try:
+            logbook_data = request_data(access_kwargs={
+                'username': username,
+                'password': password})
+        except KeyError:
+            from utils.html import get_wrong_password_string
+            html = h2(get_wrong_password_string())
+            html += "Your probably entered the wrong password"
+
+            return html
+
         with open(filename, 'w') as json_file:
             json.dump(logbook_data, json_file, indent=4)
 
