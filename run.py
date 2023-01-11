@@ -71,6 +71,57 @@ def main():
             accumulated_data = {**accumulated_data, **returned_data}
 
 
+def get_benchmark_problems(
+        cache_folder='benchmark_problems',
+        day_limit=5,
+):
+    holdset_name_list = [
+        'MoonBoard 2016 ',
+        'MoonBoard Masters 2017 25',
+        'MoonBoard Masters 2017 40',
+        'MoonBoard Masters 2019 25',
+        'MoonBoard Masters 2019 40',
+        ]
+
+    # Make sure cache folder exists
+    import os
+    if not os.path.isdir(cache_folder):
+        os.makedirs(cache_folder)
+
+    benchmark_problems_dict = {}
+    # Loop all holdsets
+    for holdset in holdset_name_list:
+        filename = f'problems {holdset}.json'
+
+        # Cache exists
+        cache_file = os.path.join(cache_folder, filename)
+        if os.path.exists(cache_file):
+            # Load benchmark data
+            with open(cache_file) as json_file:
+                benchmark_data = json.load(json_file)
+        else:
+            # Construct benchmark data
+            problem_file = os.path.join('MoonBoard', filename)
+            benchmark_data = []
+            with open(problem_file) as json_file:
+                problem_data = json.load(json_file)
+            for problem in problem_data['data']:
+                if problem['isBenchmark']:
+                    benchmark_data.append(problem)
+            json_object = json.dumps(benchmark_data, indent=4)
+            with open(cache_file, "w") as outfile:
+                outfile.write(json_object)
+
+        print(f"len(benchmark_data):{len(benchmark_data)}")
+        # problem_dict_list = benchmark_data
+        problem_list = []
+        for problem_dict in benchmark_data:
+            problem_list.append(Problem(**problem_dict))
+        benchmark_problems_dict[holdset] = problem_list
+
+    return benchmark_problems_dict
+
+
 def construct_data(problem_data, logbook_data):
     '''
     Construct useful data from loaded problems and logbook
@@ -79,6 +130,9 @@ def construct_data(problem_data, logbook_data):
       problem_data: loaded from json
       logbook_data: loaded from json
     '''
+    # Test
+    benchmark_problems_dict = get_benchmark_problems()
+
     # Get list of problem_dicts
     problem_dict_list = problem_data['data']
 
@@ -120,6 +174,7 @@ def construct_data(problem_data, logbook_data):
         'benchmark_list': benchmark_list,
         'logbook_data': logbook_data,
         'logbook_dict': logbook_dict,
+        'benchmark_problems_dict': benchmark_problems_dict,
     }
 
     return data
