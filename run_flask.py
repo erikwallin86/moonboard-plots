@@ -7,7 +7,7 @@ import io
 from flask import Flask, render_template, request
 from run import construct_data
 from datahandlers.data import DATAHANDLERS
-from utils.html import frame, image, h2
+from utils.html import frame, image, h2, h4
 
 
 app = Flask(__name__)
@@ -77,17 +77,27 @@ def data():
             # Extract possible settings kwargs from args.settings
             kwargs = settings[datahandler] if datahandler in settings else {}
             # Run datahandler object, with different inputs, and settings dict
-            fig, ax = datahandler_obj(
+            datahandler_output = datahandler_obj(
                 **{**data_dict, **general_kwargs, **kwargs})
-            output = io.BytesIO()
-            fig.savefig(output, format='png', bbox_inches="tight")
-            data = base64.b64encode(output.getbuffer()).decode("ascii")
 
             docstr = parse_docstring(datahandler_obj)
 
             html += h2(datahandler)
             html += docstr
-            html += frame(image(data))
+
+            if type(datahandler_output) == tuple:
+                fig, ax = datahandler_output
+                output = io.BytesIO()
+                fig.savefig(output, format='png', bbox_inches="tight")
+                data = base64.b64encode(output.getbuffer()).decode("ascii")
+                html += frame(image(data))
+            elif type(datahandler_output) == dict:
+                for name, (fig, ax) in datahandler_output.items():
+                    output = io.BytesIO()
+                    fig.savefig(output, format='png', bbox_inches="tight")
+                    data = base64.b64encode(output.getbuffer()).decode("ascii")
+                    html += h4(name)
+                    html += frame(image(data))
 
         return html
 

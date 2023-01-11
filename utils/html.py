@@ -13,6 +13,10 @@ def h2(string):
     return f"<h2>{string}</h2>"
 
 
+def h4(string):
+    return f"<h4>{string}</h4>"
+
+
 def parse_docstring(obj):
     docstring_list = obj.__doc__.split("\n")
     output = ""

@@ -186,8 +186,7 @@ class Logbook(DataHandler):
     This will show the general trend, good and spells e.g.
     '''
     def __call__(self,
-                 problem_list,
-                 list_of_bm_grades,
+                 benchmark_problems_dict,
                  logbook_dict,
                  overwrite=False,
                  cmap=cc.cm.rainbow,
@@ -196,79 +195,99 @@ class Logbook(DataHandler):
                  **kwargs):
         # Update save_dir with 'class name' subfolder:
         class_name = self.__class__.__name__
+        self.save_dir = os.path.join(self.save_dir, class_name)
+        if not os.path.isdir(self.save_dir):
+            os.makedirs(self.save_dir)
 
-        filename = f"{class_name}.png"
-        filename = os.path.join(self.save_dir, filename)
-        if os.path.exists(filename) and not overwrite:
-            # Skip if file already exists
-            return False
+        figure_dict = {}
 
-        # Make a mapping from str grade to int
-        grade_to_int = {}
-        for i, grade in enumerate(list_of_bm_grades):
-            grade_to_int[grade] = i
+        for holdset, problem_list in benchmark_problems_dict.items():
+            filename = f"{holdset}.png"
+            filename = os.path.join(self.save_dir, filename)
+            if os.path.exists(filename) and not overwrite:
+                # Skip if file already exists
+                return False
 
-        # Make 'problem_dict' with id as key
-        problem_dict = {}
-        for problem in problem_list:
-            problem_dict[problem.apiId] = problem
+            # Make 'problem_dict' with id as key
+            problem_dict = {}
+            for problem in problem_list:
+                problem_dict[problem.apiId] = problem
 
-        # Extract 2016 problems from logbook
-        # (indirectly, as problem_dict only contains 2016 problems for me)
-        logbook_2016 = {
-            k: v for k, v in logbook_dict.items() if k in problem_dict}
-        # Sort logbook by entry-date
-        logbook_2016 = dict(sorted(
-            logbook_2016.items(),
-            key=lambda item: item[1].entryDate))
+            # Construct 'list_of_bm_grades'
+            list_of_bm_grades = []
+            for bm in problem_list:
+                if bm.grade not in list_of_bm_grades:
+                    list_of_bm_grades.append(bm.grade)
+            list_of_bm_grades.sort()
+            # Make a mapping from str grade to int
+            grade_to_int = {}
+            for i, grade in enumerate(list_of_bm_grades):
+                grade_to_int[grade] = i
 
-        # Prepare lists
-        dates = []
-        num_problems = []
-        grades = []
-        # Loop all logbook_2016 entries
-        for i, (api_id, entry) in enumerate(logbook_2016.items()):
-            # Remove fractions of seconds from entry date
-            cut_date = entry.entryDate.split('.')[0]
-            date = datetime.strptime(cut_date, "%Y-%m-%dT%H:%M:%S")
-            dates.append(date)
-            num_problems.append(i+1)
+            # Extract problems from logbook for 'current' holdset in loop
+            logbook_holdset = {
+                k: v for k, v in logbook_dict.items() if k in problem_dict}
+            # Sort logbook by entry-date
+            logbook_holdset = dict(sorted(
+                logbook_holdset.items(),
+                key=lambda item: item[1].entryDate))
 
-            # Get problem grade
-            problem = problem_dict[api_id]
-            grades.append(grade_to_int[problem.grade])
+            if not len(logbook_holdset):
+                # Don't plot if logbook is empty for current holdset
+                continue
 
-        # Produce 'color-array' depending on the grade
-        grades = np.divide(grades, len(list_of_bm_grades)-1)
-        colors = cmap(grades)
+            # Prepare lists
+            dates = []
+            num_problems = []
+            grades = []
+            # Loop all logbook_2016 entries
+            for i, (api_id, entry) in enumerate(logbook_holdset.items()):
+                # Remove fractions of seconds from entry date
+                cut_date = entry.entryDate.split('.')[0]
+                date = datetime.strptime(cut_date, "%Y-%m-%dT%H:%M:%S")
+                dates.append(date)
+                num_problems.append(i+1)
 
-        # Plot as scatter plot
-        from plots.plot import new_fig
-        fig, ax = new_fig()
-        ax.set_axisbelow(True)
-        ax.grid(which='minor', linewidth=0.5)
-        ax.grid(which='major', linewidth=1.5)
+                # Get problem grade
+                problem = problem_dict[api_id]
+                grades.append(grade_to_int[problem.grade])
 
-        ax.scatter(dates, num_problems, color=colors, edgecolors='k',
-                   linewidth=0.5)
+            # Produce 'color-array' depending on the grade
+            grades = np.divide(grades, len(list_of_bm_grades)-1)
+            colors = cmap(grades)
 
-        from plots.plot import add_grade_legend
-        add_grade_legend(ax, list_of_bm_grades, cmap)
+            # Plot as scatter plot
+            from plots.plot import new_fig
+            fig, ax = new_fig()
+            ax.set_axisbelow(True)
+            ax.grid(which='minor', linewidth=0.5)
+            ax.grid(which='major', linewidth=1.5)
 
-        # Setup axis labels, tics etc.
-        ax.set_xlabel('Date')
-        ax.set_ylabel('Benchmark problems')
+            ax.scatter(dates, num_problems, color=colors, edgecolors='k',
+                       linewidth=0.5)
 
-        ax.set_ylim(bottom=0)
+            from plots.plot import add_grade_legend
+            add_grade_legend(ax, list_of_bm_grades, cmap)
 
-        ax.xaxis.set_major_locator(matplotlib.dates.YearLocator())
-        ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%Y'))
-        ax.xaxis.set_minor_locator(matplotlib.dates.MonthLocator())
+            # Setup axis labels, tics etc.
+            ax.set_xlabel('Date')
+            ax.set_ylabel('Benchmark problems')
 
-        if save:
-            fig.savefig(filename, dpi=dpi, bbox_inches="tight")
-        else:
-            return fig, ax
+            ax.set_ylim(bottom=0)
+
+            ax.xaxis.set_major_locator(matplotlib.dates.YearLocator())
+            ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%Y'))
+            ax.xaxis.set_minor_locator(matplotlib.dates.MonthLocator())
+            fig.suptitle(holdset)
+
+            if save:
+                fig.savefig(filename, dpi=dpi, bbox_inches="tight")
+            else:
+                figure_dict[holdset] = (fig, ax)
+                # return fig, ax
+        if not save:
+            print(f"figure_dict:{figure_dict}")
+            return figure_dict
 
 
 class Times(DataHandler):
