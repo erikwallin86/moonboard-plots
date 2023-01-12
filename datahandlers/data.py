@@ -109,6 +109,11 @@ class BenchmarkHoldFrequency(DataHandler):
 
         from utils.utils import add_dicts
         for holdset, benchmarks in benchmark_problems_dict.items():
+            # Setup colors
+            grades = np.linspace(0, 1, len(benchmark_grades_dict[holdset]))
+            cmap = cc.cm.rainbow
+            colors = cmap(grades)
+
             # Get grades
             for grade, grade_int in benchmark_grades_dict[holdset].items():
                 filename = f"{holdset}_frequency_{grade}.png"
@@ -134,7 +139,8 @@ class BenchmarkHoldFrequency(DataHandler):
                 from plots.plot import plot_frequency
                 if len(holds_sum_dict) > 0:
                     fig, ax = plot_frequency(
-                        holds_sum_dict, image_file=f'gpx/{holdset}.png')
+                        holds_sum_dict, image_file=f'gpx/{holdset}.png',
+                        color=colors[grade_int])
                     fig.savefig(filename)
 
 

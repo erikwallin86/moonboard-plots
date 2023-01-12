@@ -101,7 +101,8 @@ def plot_problem(list_of_moves):
     return fig, ax
 
 
-def plot_frequency(holds_sum_dict, image_file="gpx/MoonBoard 2016 .png"):
+def plot_frequency(holds_sum_dict, image_file="gpx/MoonBoard 2016 .png",
+                   color='red'):
     fig, ax = plt.subplots(figsize=(8.82, 13.56))
     ax.set_aspect('equal')
     img = plt.imread(image_file)
@@ -111,7 +112,7 @@ def plot_frequency(holds_sum_dict, image_file="gpx/MoonBoard 2016 .png"):
     for description, value in holds_sum_dict.items():
         coords = desc_to_coords(description)
         if coords is not None:
-            ax.scatter(coords[0], coords[1], s=scale*value, alpha=0.5, c='red')
+            ax.scatter(coords[0], coords[1], s=scale*value, alpha=0.7, color=color)
     fig.tight_layout()
     plt.axis('off')
     fig.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.0)
