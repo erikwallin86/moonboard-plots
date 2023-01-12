@@ -3,7 +3,6 @@ import inspect
 import os
 import numpy as np
 from datetime import datetime
-import matplotlib
 import colorcet as cc
 
 
@@ -95,45 +94,48 @@ class BenchmarkHoldFrequency(DataHandler):
     For each grade, visualize which holds are used the most
     '''
     def __call__(self,
-                 problem_list,
-                 list_of_grades,
+                 benchmark_problems_dict,
+                 benchmark_grades_dict,
+                 # problem_list,
+                 # list_of_grades,
                  overwrite=False,
                  **kwargs):
+
         # Update save_dir with 'class name' subfolder:
         class_name = self.__class__.__name__
         self.save_dir = os.path.join(self.save_dir, class_name)
         if not os.path.isdir(self.save_dir):
             os.makedirs(self.save_dir)
 
-        # Get list of all benchmark problems
-        benchmarks = [p for p in problem_list if p.isBenchmark]
-
         from utils.utils import add_dicts
-        for grade in list_of_grades:
-            print(f"grade:{grade}")
-            filename = f"frequency_{grade}.png"
-            filename = os.path.join(self.save_dir, filename)
-            if os.path.exists(filename) and not overwrite:
-                # Skip if file already exists
-                continue
+        for holdset, benchmarks in benchmark_problems_dict.items():
+            # Get grades
+            for grade, grade_int in benchmark_grades_dict[holdset].items():
+                filename = f"{holdset}_frequency_{grade}.png"
+                filename = os.path.join(self.save_dir, filename)
 
-            holds_sum_dict = {}
-            # Loop benchmarks and plot problems
-            for bm in benchmarks:
-                if bm.grade != grade:
+                if os.path.exists(filename) and not overwrite:
+                    # Skip if file already exists
                     continue
 
-                # Accumulate moves
-                list_of_moves = bm.moves
-                moves_dict = {}
-                for move in list_of_moves:
-                    moves_dict[move.description] = 1
-                holds_sum_dict = add_dicts(holds_sum_dict, moves_dict)
+                holds_sum_dict = {}
+                # Loop benchmarks and plot problems
+                for bm in benchmarks:
+                    if bm.grade != grade:
+                        continue
 
-            from plots.plot import plot_frequency
-            if len(holds_sum_dict) > 0:
-                fig, ax = plot_frequency(holds_sum_dict)
-                fig.savefig(filename)
+                    # Accumulate moves
+                    list_of_moves = bm.moves
+                    moves_dict = {}
+                    for move in list_of_moves:
+                        moves_dict[move.description] = 1
+                    holds_sum_dict = add_dicts(holds_sum_dict, moves_dict)
+
+                from plots.plot import plot_frequency
+                if len(holds_sum_dict) > 0:
+                    fig, ax = plot_frequency(
+                        holds_sum_dict, image_file=f'gpx/{holdset}.png')
+                    fig.savefig(filename)
 
 
 class HoldFrequency(DataHandler):
