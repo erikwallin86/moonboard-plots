@@ -256,37 +256,17 @@ class Logbook(DataHandler):
             grades = np.divide(grades, len(list_of_bm_grades)-1)
             colors = cmap(grades)
 
-            # Plot as scatter plot
-            from plots.plot import new_fig
-            fig, ax = new_fig()
-            ax.set_axisbelow(True)
-            ax.grid(which='minor', linewidth=0.5)
-            ax.grid(which='major', linewidth=1.5)
-
-            ax.scatter(dates, num_problems, color=colors, edgecolors='k',
-                       linewidth=0.5)
-
-            from plots.plot import add_grade_legend
-            add_grade_legend(ax, list_of_bm_grades, cmap)
-
-            # Setup axis labels, tics etc.
-            ax.set_xlabel('Date')
-            ax.set_ylabel('Benchmark problems')
-
-            ax.set_ylim(bottom=0)
-
-            ax.xaxis.set_major_locator(matplotlib.dates.YearLocator())
-            ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%Y'))
-            ax.xaxis.set_minor_locator(matplotlib.dates.MonthLocator())
-            fig.suptitle(holdset)
+            # Do plot and add legend
+            from plots.plot import progression_plot, add_grade_legend
+            fig, ax = progression_plot(
+                dates, num_problems, colors, suptitle=holdset)
+            add_grade_legend(ax, list_of_bm_grades, cmap=cmap)
 
             if save:
                 fig.savefig(filename, dpi=dpi, bbox_inches="tight")
             else:
                 figure_dict[holdset] = (fig, ax)
-                # return fig, ax
         if not save:
-            print(f"figure_dict:{figure_dict}")
             return figure_dict
 
 

@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 import numpy as np
+import colorcet as cc
+import matplotlib
 
 
 def new_fig(nrows=1, ncols=1, **kwargs):
@@ -23,7 +25,7 @@ def new_fig(nrows=1, ncols=1, **kwargs):
         return fig, axs
 
 
-def add_grade_legend(ax, list_of_grades, cmap):
+def add_grade_legend(ax, list_of_grades, cmap=cc.cm.rainbow):
     # Construct custom legend
     import matplotlib.lines as mlines
     handles = []
@@ -113,4 +115,33 @@ def plot_frequency(holds_sum_dict):
     fig.tight_layout()
     plt.axis('off')
     fig.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.0)
+    return fig, ax
+
+
+def progression_plot(dates, num_problems, colors=None, suptitle=None):
+    '''
+    Benchmark progression plot: scatter of dates v num_problems
+    '''
+    # Create figure and axis
+    fig, ax = new_fig()
+
+    # Setup grid
+    ax.set_axisbelow(True)
+    ax.grid(which='minor', linewidth=0.5)
+    ax.grid(which='major', linewidth=1.5)
+
+    # Plot scatter plot
+    ax.scatter(dates, num_problems, color=colors, edgecolors='k',
+               linewidth=0.5)
+
+    # Setup axis labels, tics etc.
+    ax.set_xlabel('Date')
+    ax.set_ylabel('Benchmark problems')
+    ax.set_ylim(bottom=0)
+    ax.xaxis.set_major_locator(matplotlib.dates.YearLocator())
+    ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%Y'))
+    ax.xaxis.set_minor_locator(matplotlib.dates.MonthLocator())
+    if suptitle:
+        fig.suptitle(suptitle)
+
     return fig, ax
