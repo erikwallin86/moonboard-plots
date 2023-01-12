@@ -88,19 +88,22 @@ def get_benchmark_problems(
     if not os.path.isdir(cache_folder):
         os.makedirs(cache_folder)
 
+    # Dict to hold lists of problems
     benchmark_problems_dict = {}
+    benchmark_grades_dict = {}
+
     # Loop all holdsets
     for holdset in holdset_name_list:
         filename = f'problems {holdset}.json'
 
-        # Cache exists
+        # Load BM data from cache, or construct
         cache_file = os.path.join(cache_folder, filename)
         if os.path.exists(cache_file):
-            # Load benchmark data
+            # Cache exists -> Load benchmark data
             with open(cache_file) as json_file:
                 benchmark_data = json.load(json_file)
         else:
-            # Construct benchmark data
+            # Don't exist -> Construct benchmark data
             problem_file = os.path.join('MoonBoard', filename)
             benchmark_data = []
             with open(problem_file) as json_file:
@@ -112,14 +115,27 @@ def get_benchmark_problems(
             with open(cache_file, "w") as outfile:
                 outfile.write(json_object)
 
-        print(f"len(benchmark_data):{len(benchmark_data)}")
-        # problem_dict_list = benchmark_data
+        # Go through BM data and create list of Problem objects
         problem_list = []
         for problem_dict in benchmark_data:
             problem_list.append(Problem(**problem_dict))
         benchmark_problems_dict[holdset] = problem_list
 
-    return benchmark_problems_dict
+        # Create 'list' of all bm grades for this holdset
+        # (or actually a mapping from grades to int
+        grade_list = []
+        for bm in problem_list:
+            if bm.grade not in grade_list:
+                grade_list.append(bm.grade)
+        grade_list.sort()
+        # Make a mapping from str grade to int
+        grade_int_mapping = {}
+        for i, grade in enumerate(grade_list):
+            grade_int_mapping[grade] = i
+        # Assign to a dict with holdset as key
+        benchmark_grades_dict[holdset] = grade_int_mapping
+
+    return (benchmark_problems_dict, benchmark_grades_dict)
 
 
 def construct_data(problem_data, logbook_data):
@@ -130,8 +146,8 @@ def construct_data(problem_data, logbook_data):
       problem_data: loaded from json
       logbook_data: loaded from json
     '''
-    # Test
-    benchmark_problems_dict = get_benchmark_problems()
+    # Get benchmark problems and grades
+    (benchmark_problems_dict, benchmark_grades_dict) = get_benchmark_problems()
 
     # Get list of problem_dicts
     problem_dict_list = problem_data['data']
@@ -175,6 +191,7 @@ def construct_data(problem_data, logbook_data):
         'logbook_data': logbook_data,
         'logbook_dict': logbook_dict,
         'benchmark_problems_dict': benchmark_problems_dict,
+        'benchmark_grades_dict': benchmark_grades_dict,
     }
 
     return data

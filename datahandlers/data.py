@@ -187,6 +187,7 @@ class Logbook(DataHandler):
     '''
     def __call__(self,
                  benchmark_problems_dict,
+                 benchmark_grades_dict,
                  logbook_dict,
                  overwrite=False,
                  cmap=cc.cm.rainbow,
@@ -213,16 +214,8 @@ class Logbook(DataHandler):
             for problem in problem_list:
                 problem_dict[problem.apiId] = problem
 
-            # Construct 'list_of_bm_grades'
-            list_of_bm_grades = []
-            for bm in problem_list:
-                if bm.grade not in list_of_bm_grades:
-                    list_of_bm_grades.append(bm.grade)
-            list_of_bm_grades.sort()
-            # Make a mapping from str grade to int
-            grade_to_int = {}
-            for i, grade in enumerate(list_of_bm_grades):
-                grade_to_int[grade] = i
+            # Get grades
+            grade_int_mapping = benchmark_grades_dict[holdset]
 
             # Extract problems from logbook for 'current' holdset in loop
             logbook_holdset = {
@@ -250,18 +243,19 @@ class Logbook(DataHandler):
 
                 # Get problem grade
                 problem = problem_dict[api_id]
-                grades.append(grade_to_int[problem.grade])
+                grades.append(grade_int_mapping[problem.grade])
 
             # Produce 'color-array' depending on the grade
-            grades = np.divide(grades, len(list_of_bm_grades)-1)
+            grades = np.divide(grades, len(grade_int_mapping)-1)
             colors = cmap(grades)
 
             # Do plot and add legend
             from plots.plot import progression_plot, add_grade_legend
             fig, ax = progression_plot(
                 dates, num_problems, colors, suptitle=holdset)
-            add_grade_legend(ax, list_of_bm_grades, cmap=cmap)
+            add_grade_legend(ax, grade_int_mapping.keys(), cmap=cmap)
 
+            # Either save directly, or store to return dict of (fig, ax)
             if save:
                 fig.savefig(filename, dpi=dpi, bbox_inches="tight")
             else:
