@@ -141,6 +141,10 @@ class BenchmarkHoldFrequency(DataHandler):
                     fig, ax = plot_frequency(
                         holds_sum_dict, image_file=f'gpx/{holdset}.png',
                         color=colors[grade_int])
+                    fig.suptitle(
+                        f'{holdset.strip()}, {grade}', color=colors[grade_int],
+                        fontsize=30)
+
                     fig.savefig(filename)
 
 
