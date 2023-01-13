@@ -149,3 +149,20 @@ def progression_plot(dates, num_problems, colors=None, suptitle=None):
         fig.suptitle(suptitle)
 
     return fig, ax
+
+
+def get_data_plot():
+    # Create figure and axis
+    fig, ax = new_fig()
+
+    # Setup grid
+    ax.set_axisbelow(True)
+    ax.grid(which='minor', linewidth=0.5)
+    ax.grid(which='major', linewidth=1.5)
+
+    # Setup axis labels, tics etc.
+    ax.xaxis.set_major_locator(matplotlib.dates.YearLocator())
+    ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%Y'))
+    ax.xaxis.set_minor_locator(matplotlib.dates.MonthLocator())
+
+    return fig, ax

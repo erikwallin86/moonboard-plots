@@ -275,6 +275,129 @@ class Logbook(DataHandler):
             return figure_dict
 
 
+class Logbook2(DataHandler):
+    '''
+    Test
+
+    '''
+    def __call__(self,
+                 benchmark_problems_dict,
+                 benchmark_grades_dict,
+                 logbook_dict,
+                 overwrite=False,
+                 cmap=cc.cm.rainbow,
+                 dpi=200,
+                 save=True,
+                 **kwargs):
+        # Update save_dir with 'class name' subfolder:
+        class_name = self.__class__.__name__
+        self.save_dir = os.path.join(self.save_dir, class_name)
+        if not os.path.isdir(self.save_dir):
+            os.makedirs(self.save_dir)
+
+        figure_dict = {}
+
+        for holdset, problem_list in benchmark_problems_dict.items():
+            filename = f"{holdset}.png"
+            filename = os.path.join(self.save_dir, filename)
+            if os.path.exists(filename) and not overwrite:
+                # Skip if file already exists
+                return False
+
+            # Make 'problem_dict' with id as key
+            problem_dict = {}
+            for problem in problem_list:
+                problem_dict[problem.apiId] = problem
+
+            # Get grades
+            grade_int_mapping = benchmark_grades_dict[holdset]
+
+            # Extract problems from logbook for 'current' holdset in loop
+            logbook_holdset = {
+                k: v for k, v in logbook_dict.items() if k in problem_dict}
+            # Sort logbook by entry-date
+            logbook_holdset = dict(sorted(
+                logbook_holdset.items(),
+                key=lambda item: item[1].entryDate))
+
+            if not len(logbook_holdset):
+                # Don't plot if logbook is empty for current holdset
+                continue
+
+            # Calculate total benchmarks per grade
+            num_benchmarks_per_grade = [0]*len(grade_int_mapping)
+            for problem in problem_list:
+                grade_int = grade_int_mapping[problem.grade]
+                num_benchmarks_per_grade[grade_int] += 1
+
+            # Prepare lists
+            dates = []
+            num_problems = []
+            grades = []
+            # Loop all logbook_2016 entries
+            for i, (api_id, entry) in enumerate(logbook_holdset.items()):
+                # Remove fractions of seconds from entry date
+                cut_date = entry.entryDate.split('.')[0]
+                date = datetime.strptime(cut_date, "%Y-%m-%dT%H:%M:%S")
+                dates.append(date)
+                num_problems.append(i+1)
+
+                # Get problem grade
+                problem = problem_dict[api_id]
+                grades.append(grade_int_mapping[problem.grade])
+
+            d_list_dict = {}
+            for grade, grade_int in grade_int_mapping.items():
+                d_list = []
+                for g, d in zip(grades, dates):
+                    if grade_int == g:
+                        d_list.append(d)
+                # Add today
+                d_list.append(datetime.today())
+                # Sort
+                d_list.sort()
+                d_list_dict[grade] = d_list
+
+            colors = cmap(np.linspace(0, 1, len(grade_int_mapping)))
+            print(f"colors:{colors}")
+
+            # Create figure and axis
+            from plots.plot import get_data_plot
+            fig, ax = get_data_plot()
+            for grade, dates in d_list_dict.items():
+                # print(f"(grade, dates):{(grade, dates)}")
+                grade_int = grade_int_mapping[grade]
+                # print(f"grade_int:{grade_int}")
+                # print(f"colors[grade_int]:{colors[grade_int]}")
+                # y = np.list(range(0, len(dates)))
+                y = 100*np.divide(list(range(0, len(dates))), num_benchmarks_per_grade[grade_int])
+                # print(f"y:{y}")
+                if len(dates) > 1:
+                    # ax.plot(dates, y, c=colors[grade_int], label=grade)
+                    ax.step(dates, y, c=colors[grade_int], label=grade, alpha=0.9)
+                    ax.scatter(dates[:-1], y[1:], c=colors[grade_int], alpha=0.9, s=9)
+                    print(f"ax.lines:{ax.lines}")
+                    # Remove last marker
+                    # ax.lines[-1].set_marker(None)
+                    # for line in ax.lines:
+                    #     print(f"line:{line}")
+
+            ax.set_ylim([0, 105])
+            ax.set_xlabel('Date')
+            ax.set_ylabel('Benchmark problems (% per grade)')
+            fig.legend(loc='right', bbox_to_anchor=(1.05, 0.5))
+            suptitle = f'Progress per grade, {holdset}'
+            fig.suptitle(suptitle)
+
+            # Either save directly, or store to return dict of (fig, ax)
+            if save:
+                fig.savefig(filename, dpi=dpi, bbox_inches="tight")
+            else:
+                figure_dict[holdset] = (fig, ax)
+        if not save:
+            return figure_dict
+
+
 class Times(DataHandler):
     '''
     What weekdays and times benchmarks have been logged
