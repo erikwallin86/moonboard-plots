@@ -113,7 +113,7 @@ def plot_frequency(holds_sum_dict, image_file="gpx/MoonBoard 2016 .png",
         coords = desc_to_coords(description)
         if coords is not None:
             ax.scatter(
-                coords[0], coords[1], s=scale*value, alpha=0.7,
+                coords[0], coords[1], s=scale*value, alpha=0.5,
                 color=color, edgecolors='black', linewidth=2)
 
     fig.tight_layout()
