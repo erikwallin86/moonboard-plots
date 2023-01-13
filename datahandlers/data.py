@@ -126,7 +126,8 @@ class BenchmarkHoldFrequency(DataHandler):
                 holds_sum_dict = {}
                 # Loop benchmarks and plot problems
                 for bm in benchmarks:
-                    if bm.grade != grade:
+                    # if bm.grade != grade:
+                    if bm.userGrade != grade:
                         continue
 
                     # Accumulate moves
@@ -141,9 +142,7 @@ class BenchmarkHoldFrequency(DataHandler):
                     fig, ax = plot_frequency(
                         holds_sum_dict, image_file=f'gpx/{holdset}.png',
                         color=colors[grade_int])
-                    fig.suptitle(
-                        f'{holdset.strip()}, {grade}', color=colors[grade_int],
-                        fontsize=30)
+                    fig.suptitle(f'{holdset.strip()}, {grade}',fontsize=30)
 
                     fig.savefig(filename)
 
