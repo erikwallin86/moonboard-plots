@@ -50,3 +50,15 @@ python run.py --datahandlers Benchmarks BenchmarkHoldFrequency
 run.py takes some arguments. `--filename` is the path to the dataset file, by default 'MoonBoard/problems MoonBoard 2016 .json'. `--save-dir` is the folder where to save data, by default 'Output'. `--datahandlers` take one or several datahandlers, as seen above. Using `--settings` one can provide arguments to the datahandlers. These can be general or specific. General settings are provided as e.g. `--settings overwrite:True` and will be given to all datahandlers. Specific settings are provided as e.g. `--settings BenchmarkHoldFrequency:"dict(overwrite=True)"` and will only apply to the specified datahandler.
 
 Datahandlers can return data in the form of dicts, and which is then passed to following datahandlers. If someone e.g. developed a 'generate Moonboard beta' algorithm, this could be implemented as a datahandler, and then used by other datahandlers.
+
+
+## Run web service
+The web interface can be started by running
+```
+python run_flask.py
+```
+which will start a server listening on `localhost:5000`. As it will inform, this is a development server and not used in deployment. One can anyway make it reachable from outside by instead running
+```
+flask --app run_flask.py run --host=0.0.0.0
+```
+This might be useful for trying a mobile interface e.g.
