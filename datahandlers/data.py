@@ -189,7 +189,7 @@ class HoldFrequency(DataHandler):
                 fig.savefig(filename)
 
 
-class Logbook(DataHandler):
+class BenchmarkProgress(DataHandler):
     '''
     Benchmark progression showing time and grade.
 
@@ -275,7 +275,7 @@ class Logbook(DataHandler):
             return figure_dict
 
 
-class Logbook2(DataHandler):
+class BenchmarkProgressPerGrade(DataHandler):
     '''
     Benchmark progression per grade.
 

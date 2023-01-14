@@ -70,7 +70,10 @@ def data():
 
         data_dict = construct_data(problem_data, logbook_data)
 
-        datahandlers = ['Logbook', 'Logbook2', 'Times']
+        datahandlers = [
+            'BenchmarkProgress', 'BenchmarkProgressPerGrade',
+            'Times',
+        ]
         settings = {}
         general_kwargs = {'save': False}
         from utils.html import parse_docstring
