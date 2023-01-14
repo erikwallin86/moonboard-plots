@@ -193,8 +193,8 @@ class Logbook(DataHandler):
     '''
     Benchmark progression showing time and grade.
 
-    Scatter plot of time v. number of benchmarks.
-    This will show the general trend, good and spells e.g.
+    Scatter plot of time v. accumulated number of benchmarks.
+    This will show the general trend, good and bad spells e.g.
     '''
     def __call__(self,
                  benchmark_problems_dict,
@@ -277,8 +277,9 @@ class Logbook(DataHandler):
 
 class Logbook2(DataHandler):
     '''
-    Test
+    Benchmark progression per grade.
 
+    Step plot of time v. accumulated percentage of benchmarks, per grade.
     '''
     def __call__(self,
                  benchmark_problems_dict,
@@ -359,28 +360,17 @@ class Logbook2(DataHandler):
                 d_list_dict[grade] = d_list
 
             colors = cmap(np.linspace(0, 1, len(grade_int_mapping)))
-            print(f"colors:{colors}")
 
             # Create figure and axis
             from plots.plot import get_data_plot
             fig, ax = get_data_plot()
             for grade, dates in d_list_dict.items():
-                # print(f"(grade, dates):{(grade, dates)}")
                 grade_int = grade_int_mapping[grade]
-                # print(f"grade_int:{grade_int}")
-                # print(f"colors[grade_int]:{colors[grade_int]}")
-                # y = np.list(range(0, len(dates)))
                 y = 100*np.divide(list(range(0, len(dates))), num_benchmarks_per_grade[grade_int])
-                # print(f"y:{y}")
-                if len(dates) > 1:
-                    # ax.plot(dates, y, c=colors[grade_int], label=grade)
-                    ax.step(dates, y, c=colors[grade_int], label=grade, alpha=0.9)
-                    ax.scatter(dates[:-1], y[1:], c=colors[grade_int], alpha=0.9, s=9)
-                    print(f"ax.lines:{ax.lines}")
-                    # Remove last marker
-                    # ax.lines[-1].set_marker(None)
-                    # for line in ax.lines:
-                    #     print(f"line:{line}")
+                if len(dates) == 1:
+                    continue
+                ax.step(dates, y, c=colors[grade_int], label=grade, alpha=0.9)
+                ax.scatter(dates[:-1], y[1:], color=colors[grade_int], alpha=0.9, s=9)
 
             ax.set_ylim([0, 105])
             ax.set_xlabel('Date')
