@@ -13,6 +13,7 @@ from utils.html import frame, image, h2, h4
 app = Flask(__name__)
 
 
+@app.route('/')
 @app.route('/form')
 def form():
     return render_template('form.html')
