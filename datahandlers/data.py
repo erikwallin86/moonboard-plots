@@ -214,7 +214,7 @@ class Logbook(DataHandler):
         figure_dict = {}
 
         for holdset, problem_list in benchmark_problems_dict.items():
-            filename = f"{holdset}.png"
+            filename = f"{class_name}_{holdset}.png"
             filename = os.path.join(self.save_dir, filename)
             if os.path.exists(filename) and not overwrite:
                 # Skip if file already exists
@@ -299,7 +299,7 @@ class Logbook2(DataHandler):
         figure_dict = {}
 
         for holdset, problem_list in benchmark_problems_dict.items():
-            filename = f"{holdset}.png"
+            filename = f"{class_name}_{holdset}.png"
             filename = os.path.join(self.save_dir, filename)
             if os.path.exists(filename) and not overwrite:
                 # Skip if file already exists
