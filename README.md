@@ -2,6 +2,8 @@
 A repository for creating visualization of Moonboard data.
 There is also a page which can generate some selected figures, https://www.moonplt.com/
 
+![alt text](https://github.com/erikwallin86/moonboard-plots/blob/html/static/combined2.png?raw=true)
+
 ## Setup
 Install python dependencies via
 ```
