@@ -394,8 +394,8 @@ class Times(DataHandler):
     '''
     def __call__(self,
                  problem_list,
-                 list_of_bm_grades,
                  logbook_dict,
+                 benchmark_grades_dict,
                  overwrite=False,
                  cmap=cc.cm.rainbow,
                  dpi=200,
@@ -403,9 +403,6 @@ class Times(DataHandler):
                  **kwargs):
         # Update save_dir with 'class name' subfolder:
         class_name = self.__class__.__name__
-        # self.save_dir = os.path.join(self.save_dir, class_name)
-        # if not os.path.isdir(self.save_dir):
-        #     os.makedirs(self.save_dir)
 
         filename = f"{class_name}.png"
         filename = os.path.join(self.save_dir, filename)
@@ -413,29 +410,37 @@ class Times(DataHandler):
             # Skip if file already exists
             return False
 
-        # Make a mapping from str grade to int
-        grade_to_int = {}
-        for i, grade in enumerate(list_of_bm_grades):
-            grade_to_int[grade] = i
+        # Loop all holdsets to combine list of grades
+        grade_int_mappings = benchmark_grades_dict.values()
+        list_of_all_grades = []
+        for mapping in grade_int_mappings:
+            list_of_all_grades.extend(list(mapping.keys()))
+        # Get uniq values using 'set' trick
+        list_of_all_grades = list(set(list_of_all_grades))
+        list_of_all_grades.sort()
+        # Turn into grade-int-mapping again
+        grade_int_mapping = {}
+        for i, grade in enumerate(list_of_all_grades):
+            grade_int_mapping[grade] = i
 
         # Make 'problem_dict' with id as key
         problem_dict = {}
         for problem in problem_list:
             problem_dict[problem.apiId] = problem
 
-        # Extract 2016 problems from logbook
-        # (indirectly, as problem_dict only contains 2016 problems for me)
-        logbook_2016 = {
+        # Extract all benchmarks from the logbook
+        logbook_benchmarks = {
             k: v for k, v in logbook_dict.items() if k in problem_dict}
         # Sort logbook by entry-date
         logbook_2016 = dict(sorted(
-            logbook_2016.items(),
+            logbook_benchmarks.items(),
             key=lambda item: item[1].entryDate))
 
         # Prepare lists
         dates = []
         num_problems = []
         grades = []
+
         # Loop all logbook_2016 entries
         for i, (api_id, entry) in enumerate(logbook_2016.items()):
             # Remove fractions of seconds from entry date
@@ -446,10 +451,10 @@ class Times(DataHandler):
 
             # Get problem grade
             problem = problem_dict[api_id]
-            grades.append(grade_to_int[problem.grade])
+            grades.append(grade_int_mapping[problem.grade])
 
         # Produce 'color-array' depending on the grade
-        grades = np.divide(grades, len(list_of_bm_grades)-1)
+        grades = np.divide(grades, len(grade_int_mapping.keys())-1)
         colors = cmap(grades)
 
         # Plot as scatter plot
@@ -475,26 +480,18 @@ class Times(DataHandler):
             weekdays.append(d.isoweekday())
             times.append(d.hour + d.minute/60.0)
 
+        # Do plot and add legend
         ax.scatter(weekdays, times, color=colors, edgecolors='k',
                    linewidth=0.5)
-
-        # Construct custom legend
-        import matplotlib.lines as mlines
-        handles = []
-        for i, g in enumerate(list_of_bm_grades):
-            color = cmap(i/(len(list_of_bm_grades)-1))
-            marker = mlines.Line2D(
-                [], [], marker='o', linestyle='None', label=g, color=color,
-                markeredgewidth=0.5, markeredgecolor='k')
-            handles.append(marker)
-        ax.legend(handles=handles, loc='right', bbox_to_anchor=(1.2, 0.5))
+        from plots.plot import add_grade_legend
+        add_grade_legend(ax, grade_int_mapping.keys(), cmap=cmap)
 
         # Setup axis labels, tics etc.
         ax.set_xlabel('Weekday')
         ax.set_ylabel('Hour')
         ax.set_ylim([0, 24])
 
-        # Fromat xlabels as week day names
+        # Format xlabels as week day names
         ax.xaxis.set_ticks(list(daynames_dict.keys()))
         ax.set_xticklabels(list(daynames_dict.values()))
 
