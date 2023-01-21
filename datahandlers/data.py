@@ -218,7 +218,7 @@ class BenchmarkProgress(DataHandler):
             filename = os.path.join(self.save_dir, filename)
             if os.path.exists(filename) and not overwrite:
                 # Skip if file already exists
-                return False
+                continue
 
             # Make 'problem_dict' with id as key
             problem_dict = {}
@@ -303,7 +303,7 @@ class BenchmarkProgressPerGrade(DataHandler):
             filename = os.path.join(self.save_dir, filename)
             if os.path.exists(filename) and not overwrite:
                 # Skip if file already exists
-                return False
+                continue
 
             # Make 'problem_dict' with id as key
             problem_dict = {}
