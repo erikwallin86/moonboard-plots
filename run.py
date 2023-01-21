@@ -81,6 +81,7 @@ def get_benchmark_problems(
         'MoonBoard Masters 2017 40',
         'MoonBoard Masters 2019 25',
         'MoonBoard Masters 2019 40',
+        'Mini MoonBoard 2020 40',
         ]
 
     # Make sure cache folder exists
