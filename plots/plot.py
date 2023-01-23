@@ -101,12 +101,14 @@ def plot_problem(list_of_moves):
     return fig, ax
 
 
-def plot_frequency(holds_sum_dict, image_file="gpx/MoonBoard 2016 .png",
-                   color='red'):
-    fig, ax = new_fig(figsize=(8.82, 13.56))
+def plot_frequency(
+        holds_sum_dict, image_file="gpx/MoonBoard 2016 .png",
+        color='red', size=(8.82, 13.56),
+        extent=(-1.9, 10+1.14, -1.28, 17+1.77)):
+    fig, ax = new_fig(figsize=size)
     ax.set_aspect('equal')
     img = plt.imread(image_file)
-    ax.imshow(img, extent=(-1.9, 10+1.14, -1.28, 17+1.77))
+    ax.imshow(img, extent=extent)
     maximum = np.max(list(holds_sum_dict.values()))
     scale = 4e+3/maximum
     for description, value in holds_sum_dict.items():

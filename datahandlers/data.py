@@ -139,10 +139,17 @@ class BenchmarkHoldFrequency(DataHandler):
 
                 from plots.plot import plot_frequency
                 if len(holds_sum_dict) > 0:
+                    if 'Mini' in holdset:
+                        extent = (-1.9, 10+1.10, -1.28, 11+1.65)
+                        size = (8.82, 9.42)
+                    else:
+                        extent = (-1.9, 10+1.14, -1.28, 17+1.77)
+                        size = (8.82, 13.56)
+
                     fig, ax = plot_frequency(
                         holds_sum_dict, image_file=f'gpx/{holdset}.png',
-                        color=colors[grade_int])
-                    fig.suptitle(f'{holdset.strip()}, {grade}',fontsize=30)
+                        color=colors[grade_int], size=size, extent=extent)
+                    fig.suptitle(f'{holdset.strip()}, {grade}', fontsize=30)
 
                     fig.savefig(filename)
 
