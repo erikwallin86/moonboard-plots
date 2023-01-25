@@ -139,24 +139,16 @@ def get_benchmark_problems(
     return (benchmark_problems_dict, benchmark_grades_dict)
 
 
-def construct_data(problem_data, logbook_data):
+def construct_data(problem_data=None, logbook_data=None):
     '''
     Construct useful data from loaded problems and logbook
 
     Args:
-      problem_data: loaded from json
+      problem_data: loaded from json, (all problems)
       logbook_data: loaded from json
     '''
-    # Get benchmark problems and grades
+    # Get benchmark problems for _all_ holdsets from (possibly) cached files
     (benchmark_problems_dict, benchmark_grades_dict) = get_benchmark_problems()
-
-    # Get list of problem_dicts
-    problem_dict_list = problem_data['data']
-
-    # Construct list of Problem objects
-    problem_list = []
-    for problem_dict in problem_dict_list:
-        problem_list.append(Problem(**problem_dict))
 
     # Construct list of LogbookEntry objects
     logbook_dict = {}
@@ -164,23 +156,38 @@ def construct_data(problem_data, logbook_data):
         logbook_entry = LogbookEntry(**log)
         logbook_dict[logbook_entry.apiId] = logbook_entry
 
-    # Construct 'list_of_grades'
-    list_of_grades = []
-    for problem in problem_dict_list:
-        grade = problem['grade']
-        if grade not in list_of_grades:
-            list_of_grades.append(grade)
-    list_of_grades.sort()
+    # Possibly get list of _all problems_ for some holdset
+    problem_dict_list = None
+    list_of_grades = None
+    list_of_bm_grades = None
+    problem_list = None
+    benchmark_list = None
+    if problem_data is not None:
+        # Get list of problem_dicts
+        problem_dict_list = problem_data['data']
 
-    # Construct benchmark list
-    benchmark_list = [p for p in problem_list if p.isBenchmark]
-    list_of_bm_grades = []
+        # Construct list of Problem objects
+        problem_list = []
+        for problem_dict in problem_dict_list:
+            problem_list.append(Problem(**problem_dict))
 
-    # Construct 'list_of_bm_grades'
-    for bm in benchmark_list:
-        if bm.grade not in list_of_bm_grades:
-            list_of_bm_grades.append(bm.grade)
-    list_of_bm_grades.sort()
+        # Construct 'list_of_grades'
+        list_of_grades = []
+        for problem in problem_dict_list:
+            grade = problem['grade']
+            if grade not in list_of_grades:
+                list_of_grades.append(grade)
+        list_of_grades.sort()
+
+        # Construct benchmark list
+        benchmark_list = [p for p in problem_list if p.isBenchmark]
+        list_of_bm_grades = []
+
+        # Construct 'list_of_bm_grades'
+        for bm in benchmark_list:
+            if bm.grade not in list_of_bm_grades:
+                list_of_bm_grades.append(bm.grade)
+        list_of_bm_grades.sort()
 
     # Return dict of different lists
     data = {
