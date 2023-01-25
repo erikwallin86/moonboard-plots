@@ -63,12 +63,8 @@ def data():
         with open(filename, 'w') as json_file:
             json.dump(logbook_data, json_file, indent=4)
 
-        # Load json data
-        problems_2016_filename = 'MoonBoard/problems MoonBoard 2016 .json'
-        with open(problems_2016_filename) as json_file:
-            problem_data = json.load(json_file)
-
-        data_dict = construct_data(problem_data, logbook_data)
+        data_dict = construct_data(
+            logbook_data=logbook_data, problem_data=None)
 
         datahandlers = [
             'BenchmarkProgress', 'BenchmarkProgressPerGrade',
