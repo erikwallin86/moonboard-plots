@@ -10,7 +10,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--filename', help='Path to dataset files', nargs='*',
                         default='MoonBoard/problems MoonBoard 2016 .json')
-    parser.add_argument('--logbook', help='Path to logbook file', nargs='*',
+    parser.add_argument('--logbook', help='Path to logbook file',
                         default='MoonBoard/logbook.json')
     parser.add_argument('--save-dir', type=str, default='Output',
                         help='where to save data')
