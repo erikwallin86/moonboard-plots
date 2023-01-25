@@ -400,8 +400,8 @@ class Times(DataHandler):
     What weekdays and times benchmarks have been logged
     '''
     def __call__(self,
-                 problem_list,
                  logbook_dict,
+                 benchmark_problems_dict,
                  benchmark_grades_dict,
                  overwrite=False,
                  cmap=cc.cm.rainbow,
@@ -430,31 +430,22 @@ class Times(DataHandler):
         for i, grade in enumerate(list_of_all_grades):
             grade_int_mapping[grade] = i
 
-        # Make 'problem_dict' with id as key
+        # Make a mapping id: problem for all benchmark problems of all holdsets
         problem_dict = {}
-        for problem in problem_list:
-            problem_dict[problem.apiId] = problem
-
-        # Extract all benchmarks from the logbook
-        logbook_benchmarks = {
-            k: v for k, v in logbook_dict.items() if k in problem_dict}
-        # Sort logbook by entry-date
-        logbook_2016 = dict(sorted(
-            logbook_benchmarks.items(),
-            key=lambda item: item[1].entryDate))
+        for holdset, problem_list in benchmark_problems_dict.items():
+            for problem in problem_list:
+                problem_dict[problem.apiId] = problem
 
         # Prepare lists
         dates = []
-        num_problems = []
         grades = []
 
         # Loop all logbook_2016 entries
-        for i, (api_id, entry) in enumerate(logbook_2016.items()):
+        for i, (api_id, entry) in enumerate(logbook_dict.items()):
             # Remove fractions of seconds from entry date
             cut_date = entry.entryDate.split('.')[0]
             date = datetime.strptime(cut_date, "%Y-%m-%dT%H:%M:%S")
             dates.append(date)
-            num_problems.append(i+1)
 
             # Get problem grade
             problem = problem_dict[api_id]
