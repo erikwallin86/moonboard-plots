@@ -440,16 +440,21 @@ class Times(DataHandler):
         dates = []
         grades = []
 
-        # Loop all logbook_2016 entries
+        # Loop all logbook entries
         for i, (api_id, entry) in enumerate(logbook_dict.items()):
             # Remove fractions of seconds from entry date
             cut_date = entry.entryDate.split('.')[0]
             date = datetime.strptime(cut_date, "%Y-%m-%dT%H:%M:%S")
-            dates.append(date)
 
-            # Get problem grade
-            problem = problem_dict[api_id]
-            grades.append(grade_int_mapping[problem.grade])
+            # Get problem grade from id:benchmark mapping
+            # Skip if not part of benchmarks
+            try:
+                problem = problem_dict[api_id]
+                grades.append(grade_int_mapping[problem.grade])
+            except KeyError:
+                pass
+            else:
+                dates.append(date)
 
         # Produce 'color-array' depending on the grade
         grades = np.divide(grades, len(grade_int_mapping.keys())-1)
